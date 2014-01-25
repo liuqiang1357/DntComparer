@@ -1,8 +1,3 @@
-DntComparer
-=========
-
-DntComparer by Qt 5
-
 DntComparer v1.0 -20130125
 ---------------------
 Author:xiaot	Email:liuqiang1357@163.com
