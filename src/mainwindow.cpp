@@ -50,7 +50,7 @@ bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Bia
     int _NameIDParam=-1;
     QDomNodeList messagelist=dom->elementsByTagName("message");
 
-    int NameID;
+    int NameID=0;
     QString NameIDParam;
 
     int tmp5;
@@ -616,7 +616,7 @@ void MainWindow::on_pushButton_compare_clicked()
 
             tmp1=new QTableWidgetItem(tmp2.value(0));
             tmp1->setTextAlignment(Qt::AlignRight);
-            tmp1->setTextColor(Qt::red);
+            tmp1->setTextColor(Qt::blue);
             tableWidget1->setItem(cur_row,0,tmp1);
 
             for(int j=0;j<lieshu;j++)
@@ -630,7 +630,7 @@ void MainWindow::on_pushButton_compare_clicked()
                 {
                     tmp1->setTextAlignment(Qt::AlignRight);
                 }
-                tmp1->setTextColor(Qt::red);
+                tmp1->setTextColor(Qt::blue);
                 tableWidget1->setItem(cur_row,j+1,tmp1);
             }
             cur_row++;
@@ -767,7 +767,7 @@ void MainWindow::on_action_exit_triggered()
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox::information(0,tr("关于"), tr("\n\"DNT比较器v1.0\" -20130125\n"
+    QMessageBox::information(0,tr("关于"), tr("\n\"DntComparer v1.0\" -20130125\n"
                                             "---------------------\n"
                                             "Author:xiaot\tEmail:liuqiang1357@163.com\t\n"
                                             "Qt:5.0.2\t\tmingw:4.8.0\n"
