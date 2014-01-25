@@ -9,7 +9,6 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QDomDocument>
-#include <QXmlStreamReader>
 #include <iostream>
 
 using namespace std;
@@ -23,8 +22,7 @@ class Biaotou
 public:
     qint16 lieshu;
     qint32 hangshu;
-    void dubiaotou(QDataStream &input);
-    void xiebiaotou(QDataStream &output);
+    void dubiaotou(QString &filename,QDataStream &input,QLabel *label);
     void clear()
     {
         lieshu=0;
@@ -40,8 +38,7 @@ public:
     QVector<QString> liebiaoti;
     QVector<qint8> lieleixing;
 
-    void duliexinxi(QDataStream &input,Biaotou &biaotou,Ui::MainWindow *ui);
-    void xieliexinxi(QDataStream &output,Biaotou &biaotou);
+    void duliexinxi(QDataStream &input,Biaotou &biaotou);
     void clear()
     {
         liebiaotizishu.clear();
@@ -53,8 +50,29 @@ public:
 class Shujuti
 {
 public:
-    void dushujuti(QDataStream &input,Biaotou &biaotou,Liexinxi &liexinxi,Ui::MainWindow *ui,bool &stopflag);
-    void xieshujuti(QDataStream &output,Biaotou &biaotou,Liexinxi &liexinxi,Ui::MainWindow *ui);
+    QVector<QString> hangbiaoti;
+    QVector<QString> hangshuju;
+    bool dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Biaotou &biaotou,Liexinxi &liexinxi);
+    void clear()
+    {
+        hangbiaoti.clear();
+        hangshuju.clear();
+    }
+};
+
+class Dnt
+{
+public:
+    Biaotou biaotou;
+    Liexinxi liexinxi;
+    Shujuti shujuti;
+    bool dudnt(QString &fileNameDir,bool &stopflag,Ui::MainWindow *ui,QLabel *label);
+    void clear()
+    {
+        biaotou.clear();
+        liexinxi.clear();
+        shujuti.clear();
+    }
 };
 
 
@@ -67,54 +85,37 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void clear();
+    void pipeibiaoqian();
 
 private slots:
 
-    void on_pushButton_clicked();
+    void on_action_exit_triggered();
 
-    void on_pushButton_3_clicked();
+    void on_action_about_triggered();
 
-    void on_pushButton_4_clicked();
+    void on_pushButton_dnt1_clicked();
 
-    void on_pushButton_2_clicked();
+    void on_pushButton_dnt2_clicked();
 
-    void on_pushButton_5_clicked();
+    void on_pushButton_compare_clicked();
 
-    void pipeibiaoqian();
+    void on_pushButton_stop_clicked();
 
-    void on_pushButton_6_clicked();
-
-    void on_action_triggered();
-
-    void on_action_2_triggered();
-
-    void on_action_3_triggered();
-
-    void on_action_5_triggered();
-
-    void on_action_6_triggered();
-
-    void on_pushButton_7_clicked();
-
-    void on_pushButton_8_clicked();
-
-    void on_lineEdit_returnPressed();
+    void on_pushButton_xlsx_clicked();
 
 private:
     Ui::MainWindow *ui;
 
-    QString fileNameOpenedDir;
+    QString fileNameDir1;
 
-    QString fileNameSavedDir;
+    QString fileNameDir2;
 
-    class Biaotou biaotou;
+    Dnt dnt1;
 
-    class Liexinxi liexinxi;
-
-    class Shujuti shujuti;
+    Dnt dnt2;
 
     QLabel *label1 ;
+    QLabel *label2 ;
 
     QDomDocument *dom;
 

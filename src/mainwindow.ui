@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>751</width>
-    <height>532</height>
+    <width>684</width>
+    <height>523</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,8 +15,11 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QPushButton" name="pushButton">
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="lineEdit_dnt2"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="pushButton_dnt2">
       <property name="maximumSize">
        <size>
         <width>60</width>
@@ -24,12 +27,35 @@
        </size>
       </property>
       <property name="text">
-       <string>打开</string>
+       <string>dnt2</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QPushButton" name="pushButton_5">
+     <widget class="QLineEdit" name="lineEdit_dnt1">
+      <property name="minimumSize">
+       <size>
+        <width>360</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="9">
+     <widget class="QPushButton" name="pushButton_xlsx">
+      <property name="maximumSize">
+       <size>
+        <width>60</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>导出xlsx</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="8">
+     <widget class="QPushButton" name="pushButton_stop">
       <property name="maximumSize">
        <size>
         <width>60</width>
@@ -41,70 +67,14 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="2">
-     <widget class="QLineEdit" name="lineEdit">
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>0</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="3">
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="maximumSize">
-       <size>
-        <width>60</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>搜索</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="4">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>134</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="8">
-     <widget class="QPushButton" name="pushButton_3">
-      <property name="maximumSize">
-       <size>
-        <width>60</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>保存</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="9">
-     <widget class="QPushButton" name="pushButton_4">
-      <property name="maximumSize">
-       <size>
-        <width>60</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>另存为</string>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0" colspan="11">
      <widget class="QTableWidget" name="tableWidget">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>360</height>
+       </size>
+      </property>
       <property name="whatsThis">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -129,8 +99,8 @@ p, li { white-space: pre-wrap; }
       </attribute>
      </widget>
     </item>
-    <item row="0" column="10">
-     <widget class="QPushButton" name="pushButton_6">
+    <item row="0" column="0">
+     <widget class="QPushButton" name="pushButton_dnt1">
       <property name="maximumSize">
        <size>
         <width>60</width>
@@ -138,12 +108,12 @@ p, li { white-space: pre-wrap; }
        </size>
       </property>
       <property name="text">
-       <string>导出xlsx</string>
+       <string>dnt1</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="5">
-     <widget class="QPushButton" name="pushButton_7">
+    <item row="1" column="7">
+     <widget class="QPushButton" name="pushButton_compare">
       <property name="maximumSize">
        <size>
         <width>60</width>
@@ -151,22 +121,22 @@ p, li { white-space: pre-wrap; }
        </size>
       </property>
       <property name="text">
-       <string>添加行</string>
+       <string>比较</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="7">
-     <widget class="QPushButton" name="pushButton_8">
-      <property name="maximumSize">
+    <item row="1" column="2">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
        <size>
-        <width>60</width>
-        <height>16777215</height>
+        <width>134</width>
+        <height>20</height>
        </size>
       </property>
-      <property name="text">
-       <string>删除行</string>
-      </property>
-     </widget>
+     </spacer>
     </item>
    </layout>
   </widget>
@@ -175,7 +145,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>751</width>
+     <width>684</width>
      <height>23</height>
     </rect>
    </property>
@@ -183,17 +153,14 @@ p, li { white-space: pre-wrap; }
     <property name="title">
      <string>文件</string>
     </property>
-    <addaction name="action"/>
-    <addaction name="action_2"/>
-    <addaction name="action_3"/>
     <addaction name="separator"/>
-    <addaction name="action_5"/>
+    <addaction name="action_exit"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
      <string>帮助</string>
     </property>
-    <addaction name="action_6"/>
+    <addaction name="action_about"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -203,27 +170,12 @@ p, li { white-space: pre-wrap; }
     <enum>Qt::LeftToRight</enum>
    </property>
   </widget>
-  <action name="action">
-   <property name="text">
-    <string>打开</string>
-   </property>
-  </action>
-  <action name="action_2">
-   <property name="text">
-    <string>保存</string>
-   </property>
-  </action>
-  <action name="action_3">
-   <property name="text">
-    <string>另存为</string>
-   </property>
-  </action>
-  <action name="action_5">
+  <action name="action_exit">
    <property name="text">
     <string>退出</string>
    </property>
   </action>
-  <action name="action_6">
+  <action name="action_about">
    <property name="text">
     <string>关于</string>
    </property>
