@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "xlsxdocument.h"
+#include "xlsxformat.h"
 
 void Biaotou:: dubiaotou(QString &filename,QDataStream &input,QLabel *label )
 {
@@ -29,7 +30,7 @@ void Liexinxi:: duliexinxi(QDataStream &input,Biaotou &biaotou)
 
 }
 
-bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Biaotou &biaotou,Liexinxi &liexinxi)
+bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Biaotou &biaotou,Liexinxi &liexinxi,QDomDocument *dom,QVector<int> &suoyin,bool jiazai)
 {
 
     qint32 geshi0;
@@ -44,6 +45,33 @@ bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Bia
     QVector<qint8>lieleixing1=liexinxi.lieleixing;
     QString hangshuju1;
     ui->statusBar->showMessage(QObject::tr("正在载入文件."),600000);
+
+    int _NameID=-1;
+    int _NameIDParam=-1;
+    QDomNodeList messagelist=dom->elementsByTagName("message");
+
+    int NameID;
+    QString NameIDParam;
+
+    int tmp5;
+    QString tmp6;
+    QStringList tmp7;
+    int tmp8;
+
+    for(int i=0;i<lieshu1;i++)
+    {
+        if (liexinxi.liebiaoti.value(i)==QString("_NameID"))
+        {
+            _NameID=i;
+        }
+        if (liexinxi.liebiaoti.value(i)==QString("_NameIDParam"))
+        {
+            _NameIDParam=i;
+        }
+
+    }
+
+
     for (int i=0;i<hangshu1;i++)
     {
         if (i==50)
@@ -63,7 +91,6 @@ bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Bia
 
         input>>geshi0;
         hangshuju1=QString::number(geshi0);
-        hangbiaoti.append(QString::number(i+1));
 
         for(int j=0;j<lieshu1;j++)
         {
@@ -98,15 +125,84 @@ bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Bia
             {
                 qDebug((QObject::tr("find new type:")+liexinxi.liebiaoti.value(j)+QObject::tr(" lieshu:")+QString::number(j)+QObject::tr(" leixing:")+QString::number(liexinxi.lieleixing.value(j))).toStdString().c_str());
             }
+            if (j==_NameID)
+            {
+                NameID=geshi3;
+            }
+            if (j==_NameIDParam)
+            {
+                NameIDParam=geshi1;
+            }
+
         }
 
         hangshuju.append(hangshuju1);
+
+        if (jiazai)
+        {
+            if (_NameID!=-1)
+            {
+                tmp5=suoyin.indexOf(int(NameID));
+                if(tmp5>0)
+                {
+                    tmp6= messagelist.at(tmp5).toElement().text();
+                    if (tmp6.length()<30){
+                        if (tmp6.contains("{0}"))
+                        {
+                            if (_NameIDParam!=-1)
+                            {
+                                tmp7=NameIDParam.split(',');
+                                for(int k=0 ;k<30;k++)
+                                {
+                                    if(tmp6.contains("{"+QString::number(k)+"}"))
+                                    {
+                                        if (tmp7.value(k).contains('{'))
+                                        {
+                                            tmp8=suoyin.indexOf(tmp7.value(k).remove('{').remove('}').toInt());
+                                            if (tmp8>0)
+                                            {
+                                                tmp6.replace("{"+QString::number(k)+"}",messagelist.at(tmp8).toElement().text());
+                                            }
+                                        }
+                                        else
+                                        {
+                                            tmp6.replace("{"+QString::number(k)+"}",tmp7.value(k));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        hangbiaoti.append(QString::number(i+1)+","+tmp6);
+                    }
+                    else
+                    {
+                        hangbiaoti.append(QString::number(i+1));
+                    }
+                }
+                else
+                {
+                    hangbiaoti.append(QString::number(i+1));
+                }
+            }
+            else
+            {
+                hangbiaoti.append(QString::number(i+1));
+            }
+        }
+        else
+        {
+            hangbiaoti.append(QString::number(i+1));
+        }
     }
     ui->statusBar->showMessage(QObject::tr("载入文件成功."),10000);
     return true;
 }
 
-bool Dnt::dudnt(QString &fileNameDir,bool &stopflag,Ui::MainWindow *ui,QLabel *label)
+bool Dnt::dudnt(QString &fileNameDir,bool &stopflag,Ui::MainWindow *ui,QLabel *label,QDomDocument *dom,QVector<int> &suoyin,bool jiazai)
 {
     QFile fileNameOpened (fileNameDir);
     QString filename=QFileInfo(fileNameDir).fileName();
@@ -122,106 +218,11 @@ bool Dnt::dudnt(QString &fileNameDir,bool &stopflag,Ui::MainWindow *ui,QLabel *l
     input.setFloatingPointPrecision(QDataStream::SinglePrecision);
     this->biaotou.dubiaotou(filename,input,label);
     this->liexinxi.duliexinxi(input,this->biaotou);
-    if(this->shujuti.dushujuti(input,stopflag,ui,this->biaotou,this->liexinxi))
+    if(this->shujuti.dushujuti(input,stopflag,ui,this->biaotou,this->liexinxi,dom,suoyin,jiazai))
         return true;
     else
         return false;
 }
-
-
-void MainWindow::pipeibiaoqian()
-{
-    int _NameID=0;
-    int _NameIDParam=0;
-    QDomNodeList messagelist=dom->elementsByTagName("message");
-
-    QTableWidget*tableWidget1=ui->tableWidget;
-    int lieshu1=tableWidget1->columnCount();;
-    int hangshu1=tableWidget1->rowCount();
-
-    int tmp1;
-    QString tmp2;
-    QStringList tmp3;
-    int tmp4;
-
-    for(int i=0;i<lieshu1;i++)
-    {
-        if (tableWidget1->horizontalHeaderItem(i)->text()==QString("_NameID"))
-        {
-            _NameID=i;
-        }
-        if (tableWidget1->horizontalHeaderItem(i)->text()==QString("_NameIDParam"))
-        {
-            _NameIDParam=i;
-        }
-
-    }
-
-    if (_NameID!=0)
-    {
-        statusBar()->showMessage(tr("正在匹配标签."),10000);
-        for (int i=0;i<hangshu1;i++)
-        {
-
-            if (i==30)
-            {
-                ui->tableWidget->resizeColumnsToContents();
-                qApp->processEvents ();
-            }
-            else if (i%500==0)
-            {
-                if (stopflag)
-                {
-                    statusBar()->showMessage(tr("停止匹配标签."),10000);
-                    return;
-                }
-                qApp->processEvents ();
-            }
-
-
-            tmp1=suoyin.indexOf(tableWidget1->item(i,_NameID)->text().toInt());
-            if(tmp1>=0)
-            {
-                tmp2= messagelist.at(tmp1).toElement().text();
-                if (tmp2.length()<30){
-                    if (tmp2.contains("{0}"))
-                    {
-                        tmp3=tableWidget1->item(i,_NameIDParam)->text().split(',');
-                        for(int j=0 ;j<30;j++)
-                        {
-                            if(tmp2.contains("{"+QString::number(j)+"}"))
-                            {
-                                if (tmp3.value(j).contains('{'))
-                                {
-                                    tmp4=suoyin.indexOf(tmp3.value(j).remove('{').remove('}').toInt());
-                                    if (tmp4>=0)
-                                    {
-                                        tmp2.replace("{"+QString::number(j)+"}",messagelist.at(tmp4).toElement().text());
-                                    }
-                                }
-                                else
-                                {
-                                    tmp2.replace("{"+QString::number(j)+"}",tmp3.value(j));
-                                }
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        tableWidget1->setVerticalHeaderItem(i,new QTableWidgetItem(tmp2));
-                    }
-                    else
-                    {
-                        tableWidget1->setVerticalHeaderItem(i,new QTableWidgetItem(tmp2));
-                    }
-                }
-            }
-        }
-        statusBar()->showMessage(tr("匹配标签成功."),10000);
-    }
-}
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -284,51 +285,15 @@ void MainWindow::on_pushButton_dnt1_clicked()
     if(fileNameDir1!="")
     {
         ui->lineEdit_dnt1->setText(fileNameDir1);
+        ui->lineEdit_dnt2->setText(fileNameDir1);
     }
     fileNameDir1=ui->lineEdit_dnt1->text();
-    /*
-    if(yunxing)
-    {
-        return;
-    }
-    else
-    {
-        yunxing= true;
-    }
-
-    QString dir=QFileInfo(fileNameOpenedDir).absolutePath();
-    fileNameOpenedDir = QFileDialog::getOpenFileName(this,"",dir,"Dnt Files(*.dnt)");
-    QFile fileNameOpened (fileNameOpenedDir);
-    QString filename=QFileInfo(fileNameOpenedDir).fileName();
-    if (!fileNameOpened.open(QIODevice::ReadOnly)){
-        statusBar()->showMessage(tr("文件打开失败."),10000);
-        yunxing= false;
-        return;
-    }
-    else
-    {
-        this->clear();
-    }
-    QDataStream input(&fileNameOpened);
-    input.setByteOrder(QDataStream::LittleEndian);
-    input.setFloatingPointPrecision(QDataStream::SinglePrecision);
-    this->biaotou.dubiaotou(input);
-    label1->setText(filename+tr("     ")+QString::number(biaotou.hangshu)+tr("x")+QString::number(biaotou.lieshu)+tr("   "));
-    this->liexinxi.duliexinxi(input,this->biaotou,this->ui);
-    this->shujuti.dushujuti(input,this->biaotou,this->liexinxi,this->ui,stopflag);
-    if (jiazai)
-    {
-        this->pipeibiaoqian();
-    }
-    ui->tableWidget->resizeColumnsToContents();
-    fileNameOpened.close();
-    yunxing= false;
-    */
+    fileNameDir2=ui->lineEdit_dnt2->text();
 }
 
 void MainWindow::on_pushButton_dnt2_clicked()
 {
-    QString dir=QFileInfo(fileNameDir1).absolutePath();
+    QString dir=QFileInfo(fileNameDir2).absolutePath();
     fileNameDir2 = QFileDialog::getOpenFileName(this,"",dir,"Dnt Files(*.dnt)");
     if (fileNameDir2!="")
     {
@@ -350,7 +315,7 @@ void MainWindow::on_pushButton_compare_clicked()
     stopflag=false;
     fileNameDir1=ui->lineEdit_dnt1->text();
     fileNameDir2=ui->lineEdit_dnt2->text();
-    if (!dnt1.dudnt(fileNameDir1,stopflag,this->ui,label1))
+    if (!dnt1.dudnt(fileNameDir1,stopflag,this->ui,label1,dom,suoyin,jiazai))
     {
         ui->statusBar->showMessage(QObject::tr("dnt1打开失败."),10000);
         yunxing= false;
@@ -358,7 +323,7 @@ void MainWindow::on_pushButton_compare_clicked()
     }
     else
     {
-        if(!dnt2.dudnt(fileNameDir2,stopflag,this->ui,label2))
+        if(!dnt2.dudnt(fileNameDir2,stopflag,this->ui,label2,dom,suoyin,jiazai))
         {
             ui->statusBar->showMessage(QObject::tr("dnt2打开失败."),10000);
             yunxing= false;
@@ -366,6 +331,7 @@ void MainWindow::on_pushButton_compare_clicked()
         }
         else
             ui->statusBar->showMessage(QObject::tr("文件打开成功."),10000);
+        qApp->processEvents ();
     }
 
 
@@ -388,40 +354,292 @@ void MainWindow::on_pushButton_compare_clicked()
         }
     }
 
+    ui->statusBar->showMessage(QObject::tr("正在进行比较.."),10000);
+    qApp->processEvents ();
+
     int hangshu1=dnt1.biaotou.hangshu;
     int hangshu2=dnt2.biaotou.hangshu;
 
     QVector<QString> *hangshuju1=&(dnt1.shujuti.hangshuju);
-    QVector<QString> *hangbiaoti1=&(dnt1.shujuti.hangbiaoti);
     QVector<QString> *hangshuju2=&(dnt2.shujuti.hangshuju);
+    QVector<QString> *hangbiaoti1=&(dnt1.shujuti.hangbiaoti);
     QVector<QString> *hangbiaoti2=&(dnt2.shujuti.hangbiaoti);
 
-///*
-    for(int i=0;i<hangshu2;i++)
+
+    int TS[hangshu1];
+    for (int i=0;i<hangshu1;i++)
     {
-        for(int j=0;j<hangshu1;j++)
+        TS[i]=-1;
+    }
+    int TD[hangshu2];
+    for (int i=0;i<hangshu2;i++)
+    {
+        TD[i]=-1;
+    }
+
+    int skip =hangshu2/2+1;
+    int cur_D= 0;
+
+    for(int i=0;i<hangshu1;i++)
+    {
+        for(int j=cur_D;j<min(cur_D+skip,hangshu2);j++)
         {
-            if (hangshuju1->value(i)==hangshuju2->value(i))
+            if (hangshuju1->value(i)==hangshuju2->value(j))
             {
-                hangbiaoti1->remove(i);
-                hangshuju1->remove(i);
-                hangbiaoti2->remove(j);
-                hangshuju2->remove(j);
-                hangshu1--;
-                hangshu2--;
-                i--;
-                j--;
+                TS[i]=1;
+                TD[j]=1;
+                cur_D=j+1;
                 break;
             }
         }
     }
-//*/
-    for(int i=0;i<hangshuju2->count();i++)
+
+    for(int i=0,j=0;i<hangshu1 && j<hangshu2;)
     {
-        cout<<hangbiaoti2->value(i).toStdString().c_str()<<"    ";
-        cout<<hangshuju2->value(i).toStdString().c_str()<<endl;
+        if(TS[i]==1 &&TD[j]==1)
+        {
+            i++;
+            j++;
+        }
+        else if (TS[i]==-1 &&TD[j]==1)
+        {
+            i++;
+        }
+        else if (TS[i]==1 &&TD[j]==-1)
+        {
+            j++;
+        }
+        else if (TS[i]==-1 &&TD[j]==-1)
+        {
+            TS[i]=0;
+            TD[j]=0;
+            i++;
+            j++;
+        }
     }
 
+    ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+    qApp->processEvents ();
+
+    ui->tableWidget->setColumnCount(lieshu+1);
+
+    QList<QString> HorizontalHeaderLabels=dnt1.liexinxi.liebiaoti.toList();
+    HorizontalHeaderLabels.insert(0,QObject::tr("_nRow"));
+    ui->tableWidget->setHorizontalHeaderLabels(HorizontalHeaderLabels);
+    ui->tableWidget->resizeColumnsToContents();
+    qApp->processEvents ();
+
+
+
+    QTableWidget*tableWidget1=ui->tableWidget;
+    QTableWidgetItem *tmp1;
+    QStringList tmp2;
+    QTableWidgetItem *tmp3;
+    QStringList tmp4;
+    int rowcount=0;
+    int cur_row=0;
+    QVector<qint8> *lieleixing1=&(dnt1.liexinxi.lieleixing);
+
+
+    rowcount++;
+    tableWidget1->setRowCount(rowcount);
+    tmp1=new QTableWidgetItem("dnt1<-->dnt2.");
+    tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+    cur_row++;
+
+    for(int i=0,j=0;i<hangshu1 && j<hangshu2;)
+    {
+        if (i%20==0)
+        {
+            ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+            qApp->processEvents ();
+        }
+        if(TS[i]==0 && TD[j]==0)
+        {
+            rowcount+=2;
+            tableWidget1->setRowCount(rowcount);
+
+            tmp1=new QTableWidgetItem(hangbiaoti1->value(i));
+            tmp3=new QTableWidgetItem(hangbiaoti2->value(j));
+
+            tmp1->setTextColor(Qt::red);
+            tmp3->setTextColor(Qt::blue);
+
+            tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+            tableWidget1->setVerticalHeaderItem(cur_row+1,tmp3);
+
+            tmp2=hangshuju1->value(i).split("||");
+            tmp4=hangshuju2->value(j).split("||");
+
+
+            tmp1=new QTableWidgetItem(tmp2.value(0));
+            tmp3=new QTableWidgetItem(tmp4.value(0));
+            tmp1->setTextAlignment(Qt::AlignRight);
+            tmp3->setTextAlignment(Qt::AlignRight);
+            if(tmp2.value(0)!=tmp4.value(0))
+            {
+                tmp1->setTextColor(Qt::red);
+                tmp3->setTextColor(Qt::blue);
+            }
+            tableWidget1->setItem(cur_row,0,tmp1);
+            tableWidget1->setItem(cur_row+1,0,tmp3);
+
+
+            for(int k=0;k<lieshu;k++)
+            {
+                tmp1=new QTableWidgetItem(tmp2.value(k));
+                tmp3=new QTableWidgetItem(tmp4.value(k));
+                if(lieleixing1->value(k)==1)
+                {
+                tmp1->setTextAlignment(Qt::AlignLeft);
+                tmp3->setTextAlignment(Qt::AlignLeft);
+                }
+                else
+                {
+                    tmp1->setTextAlignment(Qt::AlignRight);
+                    tmp3->setTextAlignment(Qt::AlignRight);
+                }
+                if(tmp2.value(k)!=tmp4.value(k))
+                {
+                    tmp1->setTextColor(Qt::red);
+                    tmp3->setTextColor(Qt::blue);
+                }
+                tableWidget1->setItem(cur_row,k+1,tmp1);
+                tableWidget1->setItem(cur_row+1,k+1,tmp3);
+            }
+
+            cur_row+=2;
+            i++;j++;
+        }
+        else
+        {
+            if(TS[i]!=0)
+            {
+                i++;
+            }
+            if(TD[j]!=0)
+            {
+                j++;
+            }
+        }
+    }
+
+
+
+
+    rowcount++;
+    tableWidget1->setRowCount(rowcount);
+    tmp1=new QTableWidgetItem("   ");
+    tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+    cur_row++;
+
+    rowcount++;
+    tableWidget1->setRowCount(rowcount);
+    tmp1=new QTableWidgetItem("dnt1中删除的行.");
+    tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+    cur_row++;
+
+    for(int i=0;i<hangshu1;i++)
+    {
+        if (i%20==0)
+        {
+            ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+            qApp->processEvents ();
+        }
+        if(TS[i]==-1)
+        {
+            rowcount++;
+            tableWidget1->setRowCount(rowcount);
+
+            tmp1=new QTableWidgetItem(hangbiaoti1->value(i));
+            tmp1->setTextColor(Qt::red);
+            tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+
+            tmp2=hangshuju1->value(i).split("||");
+
+            tmp1=new QTableWidgetItem(tmp2.value(0));
+            tmp1->setTextAlignment(Qt::AlignRight);
+            tmp1->setTextColor(Qt::red);
+            tableWidget1->setItem(cur_row,0,tmp1);
+
+            for(int j=0;j<lieshu;j++)
+            {
+                tmp1=new QTableWidgetItem(tmp2.value(j));
+                if (lieleixing1->value(i)==1)
+                {
+                tmp1->setTextAlignment(Qt::AlignLeft);
+                }
+                else
+                {
+                    tmp1->setTextAlignment(Qt::AlignRight);
+                }
+                tmp1->setTextColor(Qt::red);
+                tableWidget1->setItem(cur_row,j+1,tmp1);
+            }
+            cur_row++;
+        }
+
+    }
+
+
+
+
+    rowcount++;
+    tableWidget1->setRowCount(rowcount);
+    tmp1=new QTableWidgetItem("   ");
+    tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+    cur_row++;
+
+    rowcount++;
+    tableWidget1->setRowCount(rowcount);
+    tmp1=new QTableWidgetItem("dnt2中新增的行.");
+    tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+    cur_row++;
+
+    for(int i=0;i<hangshu2;i++)
+    {
+        if(TD[i]==-1)
+        {
+            if (i%20==0)
+            {
+                ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+                qApp->processEvents ();
+            }
+            rowcount++;
+            tableWidget1->setRowCount(rowcount);
+
+            tmp1=new QTableWidgetItem(hangbiaoti2->value(i));
+            tmp1->setTextColor(Qt::blue);
+            tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
+
+            tmp2=hangshuju2->value(i).split("||");
+
+            tmp1=new QTableWidgetItem(tmp2.value(0));
+            tmp1->setTextAlignment(Qt::AlignRight);
+            tmp1->setTextColor(Qt::red);
+            tableWidget1->setItem(cur_row,0,tmp1);
+
+            for(int j=0;j<lieshu;j++)
+            {
+                tmp1=new QTableWidgetItem(tmp2.value(j));
+                if (lieleixing1->value(i)==1)
+                {
+                tmp1->setTextAlignment(Qt::AlignLeft);
+                }
+                else
+                {
+                    tmp1->setTextAlignment(Qt::AlignRight);
+                }
+                tmp1->setTextColor(Qt::red);
+                tableWidget1->setItem(cur_row,j+1,tmp1);
+            }
+            cur_row++;
+        }
+
+    }
+
+    ui->tableWidget->resizeColumnsToContents();
+    ui->statusBar->showMessage(QObject::tr("比较完成."),10000);
 
     yunxing= false;
 }
@@ -431,9 +649,10 @@ void MainWindow::on_pushButton_stop_clicked()
     stopflag=true;
 }
 
+
 void MainWindow::on_pushButton_xlsx_clicked()
 {
-    /*
+
     if(yunxing)
     {
         return;
@@ -442,18 +661,27 @@ void MainWindow::on_pushButton_xlsx_clicked()
     {
         yunxing= true;
     }
+    QTXLSX_USE_NAMESPACE;
+
+    QString dir=QFileInfo(fileNameDir1).absolutePath();
+    QString saveDir=QFileDialog::getSaveFileName(this,"",dir,"xlsx Files(*.xlsx)");
+
     QXlsx::Document xlsx;
     QTableWidget*tableWidget1=ui->tableWidget;
     int hangshu1=tableWidget1->rowCount();
     int lieshu1= tableWidget1->columnCount();
-
+    QTableWidgetItem *tmp1;
+    Format format1;
+    QString txt1;
 
     xlsx.write(1,1,"");
     for(int j=0;j<lieshu1;j++)
     {
-        if(tableWidget1->horizontalHeaderItem(j)!=NULL)
+        tmp1=tableWidget1->horizontalHeaderItem(j);
+        if(tmp1!=NULL)
         {
-            xlsx.write(1,j+2,tableWidget1->horizontalHeaderItem(j)->text());
+            format1.setFontColor(tmp1->textColor());
+            xlsx.write(1,j+2,tmp1->text(),format1);
         }
         else
         {
@@ -467,18 +695,31 @@ void MainWindow::on_pushButton_xlsx_clicked()
             ui->statusBar->showMessage(QObject::tr("正在生成xlsx ")+QString::number(int(double(i)*100/double(hangshu1)))+"%",600000);
             qApp->processEvents ();
         }
-        if(tableWidget1->verticalHeaderItem(i)!=NULL)
+        tmp1=tableWidget1->verticalHeaderItem(i);
+        if(tmp1!=NULL)
         {
-            xlsx.write(i+2,1,tableWidget1->verticalHeaderItem(i)->text());
+            format1.setFontColor(tmp1->textColor());
+            txt1=tmp1->text();
+            xlsx.write(i+2,1,txt1,format1);
+            if(txt1.contains("dnt"))
+            {
+                continue;
+            }
+            else if(txt1=="   ")
+            {
+                continue;
+            }
         }
         else
         {
             xlsx.write(i+2,1,QString::number(i+1));
         }
 
-        if(tableWidget1->item(i,0)!=NULL)
+        tmp1=tableWidget1->item(i,0);
+        if(tmp1!=NULL)
         {
-            xlsx.write(i+2,2,tableWidget1->item(i,0)->text().toInt());
+            format1.setFontColor(tmp1->textColor());
+            xlsx.write(i+2,2,tmp1->text().toInt(),format1);
         }
         else
         {
@@ -486,20 +727,24 @@ void MainWindow::on_pushButton_xlsx_clicked()
         }
         for(int j=1;j<lieshu1;j++)
         {
-            if(tableWidget1->item(i,j)!=NULL)
+
+            tmp1=tableWidget1->item(i,j);
+            if(tmp1!=NULL)
             {
-                if(liexinxi.lieleixing.value(j-1)==1)
+                format1.setFontColor(tmp1->textColor());
+                if(dnt1.liexinxi.lieleixing.value(j-1)==1)
                 {
-                    xlsx.write(i+2,j+2,tableWidget1->item(i,j)->text());
+                    xlsx.write(i+2,j+2,tmp1->text(),format1);
                 }
-                else if(liexinxi.lieleixing.value(j-1)<=3)
+                else if(dnt1.liexinxi.lieleixing.value(j-1)<=3)
                 {
-                    xlsx.write(i+2,j+2,tableWidget1->item(i,j)->text().toInt());
+                    xlsx.write(i+2,j+2,tmp1->text().toInt(),format1);
                 }
-                else if(liexinxi.lieleixing.value(j-1)<=5)
+                else if(dnt1.liexinxi.lieleixing.value(j-1)<=5)
                 {
-                    xlsx.write(i+2,j+2,tableWidget1->item(i,j)->text().toDouble());
+                    xlsx.write(i+2,j+2,tmp1->text().toDouble(),format1);
                 }
+                cout<<dnt1.liexinxi.lieleixing.value(i-1)<<endl;
             }
             else
             {
@@ -508,12 +753,11 @@ void MainWindow::on_pushButton_xlsx_clicked()
         }
     }
 
-    QString saveDir=QFileInfo(fileNameOpenedDir).absolutePath()+"\\"+QFileInfo(fileNameOpenedDir).baseName()+".xlsx";
     statusBar()->showMessage(tr("正在保存xlsx..."),10000);
     xlsx.saveAs(saveDir);
     statusBar()->showMessage(tr("成功导出xlsx."),10000);
     yunxing= false;
-    */
+
 }
 
 void MainWindow::on_action_exit_triggered()
@@ -523,7 +767,7 @@ void MainWindow::on_action_exit_triggered()
 
 void MainWindow::on_action_about_triggered()
 {
-    QMessageBox::information(0,tr("关于"), tr("\n\"DNT查看编辑器v2.0\" -20130120\n"
+    QMessageBox::information(0,tr("关于"), tr("\n\"DNT比较器v1.0\" -20130125\n"
                                             "---------------------\n"
                                             "Author:xiaot\tEmail:liuqiang1357@163.com\t\n"
                                             "Qt:5.0.2\t\tmingw:4.8.0\n"

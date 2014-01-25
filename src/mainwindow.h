@@ -50,13 +50,13 @@ public:
 class Shujuti
 {
 public:
-    QVector<QString> hangbiaoti;
     QVector<QString> hangshuju;
-    bool dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Biaotou &biaotou,Liexinxi &liexinxi);
+    QVector<QString> hangbiaoti;
+    bool dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Biaotou &biaotou,Liexinxi &liexinxi,QDomDocument *dom,QVector<int> &suoyin,bool jiazai);
     void clear()
     {
-        hangbiaoti.clear();
         hangshuju.clear();
+        hangbiaoti.clear();
     }
 };
 
@@ -66,7 +66,7 @@ public:
     Biaotou biaotou;
     Liexinxi liexinxi;
     Shujuti shujuti;
-    bool dudnt(QString &fileNameDir,bool &stopflag,Ui::MainWindow *ui,QLabel *label);
+    bool dudnt(QString &fileNameDir,bool &stopflag,Ui::MainWindow *ui,QLabel *label,QDomDocument *dom,QVector<int> &suoyin,bool jiazai);
     void clear()
     {
         biaotou.clear();
@@ -84,8 +84,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-    void pipeibiaoqian();
 
 private slots:
 
@@ -115,17 +113,20 @@ private:
     Dnt dnt2;
 
     QLabel *label1 ;
+
     QLabel *label2 ;
 
     QDomDocument *dom;
 
     QVector<int> suoyin;
 
+    bool jiazai;
+
     bool stopflag;
 
     bool yunxing;
 
-    bool jiazai;
+
 };
 
 #endif // MAINWINDOW_H
