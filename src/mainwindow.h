@@ -50,13 +50,15 @@ public:
 class Shujuti
 {
 public:
-    QVector<QString> hangshuju;
     QVector<QString> hangbiaoti;
+    QVector<QString> hangbianhao;
+    QVector<QString> hangshuju;
     bool dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Biaotou &biaotou,Liexinxi &liexinxi,QDomDocument *dom,QVector<int> &suoyin,bool jiazai);
     void clear()
     {
         hangshuju.clear();
         hangbiaoti.clear();
+        hangbianhao.clear();
     }
 };
 

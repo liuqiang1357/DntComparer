@@ -90,8 +90,9 @@ bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Bia
         }
 
         input>>geshi0;
-        hangshuju1=QString::number(geshi0);
+        hangbianhao.append(QString::number(geshi0));
 
+        hangshuju1="mystart";
         for(int j=0;j<lieshu1;j++)
         {
             if (lieleixing1.value(j)==1 )
@@ -136,7 +137,7 @@ bool Shujuti::dushujuti(QDataStream &input,bool &stopflag,Ui::MainWindow *ui,Bia
 
         }
 
-        hangshuju.append(hangshuju1);
+        hangshuju.append(hangshuju1.remove("mystart||"));
 
         if (jiazai)
         {
@@ -364,6 +365,9 @@ void MainWindow::on_pushButton_compare_clicked()
     QVector<QString> *hangshuju2=&(dnt2.shujuti.hangshuju);
     QVector<QString> *hangbiaoti1=&(dnt1.shujuti.hangbiaoti);
     QVector<QString> *hangbiaoti2=&(dnt2.shujuti.hangbiaoti);
+    QVector<QString> *hangbianhao1=&(dnt1.shujuti.hangbianhao);
+    QVector<QString> *hangbianhao2=&(dnt2.shujuti.hangbianhao);
+
 
 
     int TS[hangshu1];
@@ -377,48 +381,37 @@ void MainWindow::on_pushButton_compare_clicked()
         TD[i]=-1;
     }
 
-    int skip =hangshu2/2+1;
-    int cur_D= 0;
+
 
     for(int i=0;i<hangshu1;i++)
     {
-        for(int j=cur_D;j<min(cur_D+skip,hangshu2);j++)
+        for(int j=0;j<hangshu2;j++)
         {
-            if (hangshuju1->value(i)==hangshuju2->value(j))
+            if(TD[j]==-1)
             {
-                TS[i]=1;
-                TD[j]=1;
-                cur_D=j+1;
-                break;
+                if(hangbianhao1->value(i)==hangbianhao2->value(j))
+                {
+                    TS[i]=j;
+                    if (hangshuju1->value(i)==hangshuju2->value(j))
+                    {
+                        TD[j]=1;
+                    }
+                    else
+                    {
+                        TD[j]=0;
+                    }
+                    break;
+                }
             }
         }
     }
-
-    for(int i=0,j=0;i<hangshu1 && j<hangshu2;)
-    {
-        if(TS[i]==1 &&TD[j]==1)
-        {
-            i++;
-            j++;
-        }
-        else if (TS[i]==-1 &&TD[j]==1)
-        {
-            i++;
-        }
-        else if (TS[i]==1 &&TD[j]==-1)
-        {
-            j++;
-        }
-        else if (TS[i]==-1 &&TD[j]==-1)
-        {
-            TS[i]=0;
-            TD[j]=0;
-            i++;
-            j++;
-        }
-    }
-
     ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+    if (stopflag)
+    {
+        ui->statusBar->showMessage(QObject::tr("停止比较."),10000);
+        yunxing= false;
+        return;
+    }
     qApp->processEvents ();
 
     ui->tableWidget->setColumnCount(lieshu+1);
@@ -427,6 +420,12 @@ void MainWindow::on_pushButton_compare_clicked()
     HorizontalHeaderLabels.insert(0,QObject::tr("_nRow"));
     ui->tableWidget->setHorizontalHeaderLabels(HorizontalHeaderLabels);
     ui->tableWidget->resizeColumnsToContents();
+    if (stopflag)
+    {
+        ui->statusBar->showMessage(QObject::tr("停止比较."),10000);
+        yunxing= false;
+        return;
+    }
     qApp->processEvents ();
 
 
@@ -447,15 +446,22 @@ void MainWindow::on_pushButton_compare_clicked()
     tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
     cur_row++;
 
-    for(int i=0,j=0;i<hangshu1 && j<hangshu2;)
+    for(int i=0;i<hangshu1;i++)
     {
         if (i%20==0)
         {
             ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+            if (stopflag)
+            {
+                ui->statusBar->showMessage(QObject::tr("停止比较."),10000);
+                yunxing= false;
+                return;
+            }
             qApp->processEvents ();
         }
-        if(TS[i]==0 && TD[j]==0)
+        if(TS[i]!=-1 && TD[TS[i]]==0)
         {
+            int j=TS[i];
             rowcount+=2;
             tableWidget1->setRowCount(rowcount);
 
@@ -468,31 +474,29 @@ void MainWindow::on_pushButton_compare_clicked()
             tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
             tableWidget1->setVerticalHeaderItem(cur_row+1,tmp3);
 
-            tmp2=hangshuju1->value(i).split("||");
-            tmp4=hangshuju2->value(j).split("||");
 
 
-            tmp1=new QTableWidgetItem(tmp2.value(0));
-            tmp3=new QTableWidgetItem(tmp4.value(0));
+            tmp1=new QTableWidgetItem(hangbianhao1->value(i));
+            tmp3=new QTableWidgetItem(hangbianhao2->value(j));
+
             tmp1->setTextAlignment(Qt::AlignRight);
             tmp3->setTextAlignment(Qt::AlignRight);
-            if(tmp2.value(0)!=tmp4.value(0))
-            {
-                tmp1->setTextColor(Qt::red);
-                tmp3->setTextColor(Qt::blue);
-            }
+
             tableWidget1->setItem(cur_row,0,tmp1);
             tableWidget1->setItem(cur_row+1,0,tmp3);
 
 
+
+            tmp2=hangshuju1->value(i).split("||");
+            tmp4=hangshuju2->value(j).split("||");
             for(int k=0;k<lieshu;k++)
             {
                 tmp1=new QTableWidgetItem(tmp2.value(k));
                 tmp3=new QTableWidgetItem(tmp4.value(k));
                 if(lieleixing1->value(k)==1)
                 {
-                tmp1->setTextAlignment(Qt::AlignLeft);
-                tmp3->setTextAlignment(Qt::AlignLeft);
+                    tmp1->setTextAlignment(Qt::AlignLeft);
+                    tmp3->setTextAlignment(Qt::AlignLeft);
                 }
                 else
                 {
@@ -509,18 +513,6 @@ void MainWindow::on_pushButton_compare_clicked()
             }
 
             cur_row+=2;
-            i++;j++;
-        }
-        else
-        {
-            if(TS[i]!=0)
-            {
-                i++;
-            }
-            if(TD[j]!=0)
-            {
-                j++;
-            }
         }
     }
 
@@ -544,6 +536,12 @@ void MainWindow::on_pushButton_compare_clicked()
         if (i%20==0)
         {
             ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+            if (stopflag)
+            {
+                ui->statusBar->showMessage(QObject::tr("停止比较."),10000);
+                yunxing= false;
+                return;
+            }
             qApp->processEvents ();
         }
         if(TS[i]==-1)
@@ -555,19 +553,18 @@ void MainWindow::on_pushButton_compare_clicked()
             tmp1->setTextColor(Qt::red);
             tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
 
-            tmp2=hangshuju1->value(i).split("||");
-
-            tmp1=new QTableWidgetItem(tmp2.value(0));
+            tmp1=new QTableWidgetItem(hangbianhao1->value(i));
             tmp1->setTextAlignment(Qt::AlignRight);
             tmp1->setTextColor(Qt::red);
             tableWidget1->setItem(cur_row,0,tmp1);
 
+            tmp2=hangshuju1->value(i).split("||");
             for(int j=0;j<lieshu;j++)
             {
                 tmp1=new QTableWidgetItem(tmp2.value(j));
                 if (lieleixing1->value(i)==1)
                 {
-                tmp1->setTextAlignment(Qt::AlignLeft);
+                    tmp1->setTextAlignment(Qt::AlignLeft);
                 }
                 else
                 {
@@ -604,6 +601,12 @@ void MainWindow::on_pushButton_compare_clicked()
             {
                 ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
                 qApp->processEvents ();
+                if (stopflag)
+                {
+                    ui->statusBar->showMessage(QObject::tr("停止比较."),10000);
+                    yunxing= false;
+                    return;
+                }
             }
             rowcount++;
             tableWidget1->setRowCount(rowcount);
@@ -612,19 +615,18 @@ void MainWindow::on_pushButton_compare_clicked()
             tmp1->setTextColor(Qt::blue);
             tableWidget1->setVerticalHeaderItem(cur_row,tmp1);
 
-            tmp2=hangshuju2->value(i).split("||");
-
-            tmp1=new QTableWidgetItem(tmp2.value(0));
+            tmp1=new QTableWidgetItem(hangbianhao2->value(i));
             tmp1->setTextAlignment(Qt::AlignRight);
             tmp1->setTextColor(Qt::blue);
             tableWidget1->setItem(cur_row,0,tmp1);
 
+            tmp2=hangshuju2->value(i).split("||");
             for(int j=0;j<lieshu;j++)
             {
                 tmp1=new QTableWidgetItem(tmp2.value(j));
                 if (lieleixing1->value(i)==1)
                 {
-                tmp1->setTextAlignment(Qt::AlignLeft);
+                    tmp1->setTextAlignment(Qt::AlignLeft);
                 }
                 else
                 {
