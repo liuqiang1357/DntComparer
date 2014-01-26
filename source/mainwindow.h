@@ -103,6 +103,10 @@ private slots:
 
     void on_pushButton_xlsx_clicked();
 
+    void on_lineEdit_dnt1_textChanged(const QString &arg1);
+
+    void on_lineEdit_dnt2_textChanged(const QString &arg1);
+
 private:
     Ui::MainWindow *ui;
 

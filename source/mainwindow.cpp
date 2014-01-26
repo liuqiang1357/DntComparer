@@ -286,7 +286,14 @@ void MainWindow::on_pushButton_dnt1_clicked()
     if(fileNameDir1!="")
     {
         ui->lineEdit_dnt1->setText(fileNameDir1);
+        if(fileNameDir2=="")
+        {
         ui->lineEdit_dnt2->setText(fileNameDir1);
+        }
+        else
+        {
+           ui->lineEdit_dnt2->setText(QFileInfo(fileNameDir2).absolutePath()+"/"+QFileInfo(fileNameDir1).fileName());
+        }
     }
     fileNameDir1=ui->lineEdit_dnt1->text();
     fileNameDir2=ui->lineEdit_dnt2->text();
@@ -303,6 +310,16 @@ void MainWindow::on_pushButton_dnt2_clicked()
     fileNameDir2=ui->lineEdit_dnt2->text();
 }
 
+void MainWindow::on_lineEdit_dnt1_textChanged(const QString &arg1)
+{
+    fileNameDir1=arg1;
+}
+
+void MainWindow::on_lineEdit_dnt2_textChanged(const QString &arg1)
+{
+        fileNameDir2=arg1;
+}
+
 void MainWindow::on_pushButton_compare_clicked()
 {
     if(yunxing)
@@ -314,8 +331,7 @@ void MainWindow::on_pushButton_compare_clicked()
         yunxing= true;
     }
     stopflag=false;
-    fileNameDir1=ui->lineEdit_dnt1->text();
-    fileNameDir2=ui->lineEdit_dnt2->text();
+
     if (!dnt1.dudnt(fileNameDir1,stopflag,this->ui,label1,dom,suoyin,jiazai))
     {
         ui->statusBar->showMessage(QObject::tr("dnt1打开失败."),10000);
@@ -405,6 +421,8 @@ void MainWindow::on_pushButton_compare_clicked()
             }
         }
     }
+
+
     ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
     if (stopflag)
     {
@@ -775,3 +793,7 @@ void MainWindow::on_action_about_triggered()
                                             "Qt:5.0.2\t\tmingw:4.8.0\n"
                                             "on Microsoft Windows 7 (32-bit)\n"));
 }
+
+
+
+
