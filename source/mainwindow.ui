@@ -154,6 +154,10 @@ p, li { white-space: pre-wrap; }
      <string>文件</string>
     </property>
     <addaction name="separator"/>
+    <addaction name="actionDnt1"/>
+    <addaction name="actionDnt2"/>
+    <addaction name="action_compare"/>
+    <addaction name="separator"/>
     <addaction name="action_exit"/>
    </widget>
    <widget class="QMenu" name="menu_2">
@@ -178,6 +182,21 @@ p, li { white-space: pre-wrap; }
   <action name="action_about">
    <property name="text">
     <string>关于</string>
+   </property>
+  </action>
+  <action name="actionDnt1">
+   <property name="text">
+    <string>dnt1</string>
+   </property>
+  </action>
+  <action name="actionDnt2">
+   <property name="text">
+    <string>dnt2</string>
+   </property>
+  </action>
+  <action name="action_compare">
+   <property name="text">
+    <string>比较</string>
    </property>
   </action>
  </widget>

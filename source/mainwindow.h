@@ -107,6 +107,12 @@ private slots:
 
     void on_lineEdit_dnt2_textChanged(const QString &arg1);
 
+    void on_actionDnt1_triggered();
+
+    void on_actionDnt2_triggered();
+
+    void on_action_compare_triggered();
+
 private:
     Ui::MainWindow *ui;
 

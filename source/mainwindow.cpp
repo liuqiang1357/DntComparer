@@ -424,6 +424,7 @@ void MainWindow::on_pushButton_compare_clicked()
 
 
     ui->statusBar->showMessage(QObject::tr("正在生成表格.."),10000);
+    ui->tableWidget->clear();
     if (stopflag)
     {
         ui->statusBar->showMessage(QObject::tr("停止比较."),10000);
@@ -780,6 +781,21 @@ void MainWindow::on_pushButton_xlsx_clicked()
 
 }
 
+void MainWindow::on_actionDnt1_triggered()
+{
+    on_pushButton_dnt1_clicked();
+}
+
+void MainWindow::on_actionDnt2_triggered()
+{
+    on_pushButton_dnt2_clicked();
+}
+
+void MainWindow::on_action_compare_triggered()
+{
+    on_pushButton_compare_clicked();
+}
+
 void MainWindow::on_action_exit_triggered()
 {
     exit(0);
@@ -793,6 +809,7 @@ void MainWindow::on_action_about_triggered()
                                             "Qt:5.0.2\t\tmingw:4.8.0\n"
                                             "on Microsoft Windows 7 (32-bit)\n"));
 }
+
 
 
 
