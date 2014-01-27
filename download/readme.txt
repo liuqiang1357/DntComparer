@@ -1,4 +1,4 @@
-DntComparer v1.0 -20130125
+﻿DntComparer v1.0 -20130125
 ---------------------
 Author:xiaot	Email:liuqiang1357@163.com
 Qt:5.0.2	mingw:4.8.0
