@@ -1,7 +1,7 @@
-﻿DntComparer v1.0 -20130125
+﻿DntComparer v1.0 -20140125
 ---------------------
 Author:xiaot	Email:liuqiang1357@163.com
-Qt:5.0.2	mingw:4.8.0
+Qt:5.2.0	mingw:4.8.0
 on Microsoft Windows 7 (32-bit)
 
 项目主页：https://github.com/liuqiang1357/DntComparer
